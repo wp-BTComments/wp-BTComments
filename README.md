@@ -5,7 +5,7 @@ Prevent spam with Bitcoin micropayments!
 
 This plugin is a working prototype. How to use:
 
-1. Register for a free blockchain.info wallet.
+1. Register for a free [blockchain.info wallet](https://blockchain.info/wallet).
 2. Download the plugin to your WordPress plugin directory.
 3. Enter your API guid and password.
 4. Enjoy letting your blog visitors use a bitcoin microtransaction to post comments without moderation.
