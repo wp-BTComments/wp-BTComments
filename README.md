@@ -15,7 +15,7 @@ http://wordpress.org/plugins/twitter-comment-field — props to Corey Freeman fo
 such reusable code.
 
 #### TODO
-* Work out some way to validate the BTC address submitted with the form is the same one retrieved through the ajax call (that is run when you click the checkbox).
+* Only show the "verify that you're human with bitcoin" option after the comment has been submitted AND the comment is waiting for moderation. There's no sense in showing this form to a logged-in user, or a commenter that has already been given approval for commenting without moderation. This would also aleviate the security issue of of having to work out some way to validate the BTC address submitted with the form is the same one retrieved through the ajax call (that is run when you click the checkbox), because the commentid would be sent with the ajax call, and the unique bitcoin address created would be associated with that commentid on the server.
 * Use the WP Setting API to store the blockchain web wallet GUID and password, negating the need to change those variables in the code.
 * Refactor the code — this was hacked together afterall during a hackathon when time limits were in place. Giving DOM elements id's such as "bitcoin" is asking for collisions with other plugins' code.
 * Tab order is funky
