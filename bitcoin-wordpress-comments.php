@@ -7,7 +7,9 @@ Author: Kenny Younger & Matt Snyder (Taken from Corey Freeman's Twitter field ad
 License: GPL
 */
 
-$BLOCKCHAIN_PASSWORD = 'btchack021514';
+//Add this to your wp-config.php
+//$BLOCKCHAIN_PASSWORD = '';
+//$BLOCKCHAIN_GUID = '';
 
 add_filter('comment_form_default_fields','custom_fields');
 function custom_fields($fields) {
@@ -151,7 +153,7 @@ function bitcoin_ajax_request() {
 	if ( isset($_REQUEST) ) {
 		// Now we'll return it to the javascript function
 		// Anything outputted will be returned in the response
-                $payload = file_get_contents('https://blockchain.info/merchant/79689497-be77-41c8-8bda-cea1c682137e/new_address?password='.$BLOCKCHAIN_PASSWORD.'&label=SheerFocus-Blog');
+                $payload = file_get_contents('https://blockchain.info/merchant/'.$BLOCKCHAIN_GUID.'/new_address?password='.$BLOCKCHAIN_PASSWORD.'&label=SheerFocus-Blog');
                 header( "Content-Type: application/json" );
 		echo $payload;
 		// If you're debugging, it might be useful to see what was sent in the $_REQUEST
