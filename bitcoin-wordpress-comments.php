@@ -153,7 +153,7 @@ function bitcoin_ajax_request() {
 	if ( isset($_REQUEST) ) {
 		// Now we'll return it to the javascript function
 		// Anything outputted will be returned in the response
-                $payload = file_get_contents('https://blockchain.info/merchant/'.$BLOCKCHAIN_GUID.'/new_address?password='.$BLOCKCHAIN_PASSWORD.'&label=SheerFocus-Blog');
+                $payload = file_get_contents('https://blockchain.info/merchant/'.$BLOCKCHAIN_GUID.'/new_address?password='.$BLOCKCHAIN_PASSWORD.'&label=wp-bitpost');
                 header( "Content-Type: application/json" );
 		echo $payload;
 		// If you're debugging, it might be useful to see what was sent in the $_REQUEST
