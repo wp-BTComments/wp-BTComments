@@ -9,68 +9,60 @@ License: GPL v2
 
 add_filter('comment_form_default_fields','custom_fields');
 function custom_fields($fields) {
+    $commenter = wp_get_current_commenter();
+    $req = get_option( 'require_name_email' );
+    $aria_req = ( $req ? " aria-required='true'" : '' );
 
-		$commenter = wp_get_current_commenter();
-		$req = get_option( 'require_name_email' );
-		$aria_req = ( $req ? " aria-required='true'" : '' );
+    $fields[ 'author' ] = '<p class="comment-form-author">'.
+        '<label for="author">' . __( 'Name' ) . '</label>'.
+        ( $req ? '<span class="required">*</span>' : '' ).
+        '<input id="author" name="author" type="text" value="'. esc_attr( $commenter['comment_author'] ) . 
+        '" size="30" tabindex="1"' . $aria_req . ' /></p>';
+    
+    $fields[ 'email' ] = '<p class="comment-form-email">'.
+        '<label for="email">' . __( 'Email' ) . '</label>'.
+        ( $req ? '<span class="required">*</span>' : '' ).
+        '<input id="email" name="email" type="text" value="'. esc_attr( $commenter['comment_author_email'] ) . 
+        '" size="30"  tabindex="2"' . $aria_req . ' /></p>';
+                            
+    $fields[ 'url' ] = '<p class="comment-form-url">'.
+        '<label for="url">' . __( 'Website' ) . '</label>'.
+        '<input id="url" name="url" type="text" value="'. esc_attr( $commenter['comment_author_url'] ) . 
+        '" size="30"  tabindex="3" /></p>';
 
-		$fields[ 'author' ] = '<p class="comment-form-author">'.
-			'<label for="author">' . __( 'Name' ) . '</label>'.
-			( $req ? '<span class="required">*</span>' : '' ).
-			'<input id="author" name="author" type="text" value="'. esc_attr( $commenter['comment_author'] ) . 
-			'" size="30" tabindex="1"' . $aria_req . ' /></p>';
-		
-		$fields[ 'email' ] = '<p class="comment-form-email">'.
-			'<label for="email">' . __( 'Email' ) . '</label>'.
-			( $req ? '<span class="required">*</span>' : '' ).
-			'<input id="email" name="email" type="text" value="'. esc_attr( $commenter['comment_author_email'] ) . 
-			'" size="30"  tabindex="2"' . $aria_req . ' /></p>';
-					
-		$fields[ 'url' ] = '<p class="comment-form-url">'.
-			'<label for="url">' . __( 'Website' ) . '</label>'.
-			'<input id="url" name="url" type="text" value="'. esc_attr( $commenter['comment_author_url'] ) . 
-			'" size="30"  tabindex="3" /></p>';
-
-	return $fields;
+    return $fields;
 }
-
 
 // Add fields after default fields above the comment box, always visible
 add_action( 'comment_form_after_fields', 'additional_fields' );
 add_action( 'comment_form_logged_in_after', 'additional_fields' );
 function additional_fields () {
-	echo '<p class="comment-form-bitcoin">'.
-	'<label for="bitcoin">' . __( 'Pay to Bitcoin Address: &nbsp;' ) . '</label>'.
-	'<input id="bitcoin" readonly="readonly" name="bitcoin" type="text" size="60"  tabindex="5" />'.
-        '<br><span> (May take up to 5 minutes to very transaction.)</span></p>';
+    echo '<p class="comment-form-bitcoin">'.
+    '<label for="bitcoin">' . __( 'Pay to Bitcoin Address: &nbsp;' ) . '</label>'.
+    '<input id="bitcoin" readonly="readonly" name="bitcoin" type="text" size="60"  tabindex="5" />'.
+    '<br><span> (May take up to 5 minutes to very transaction.)</span></p>';
 }
-
 
 // Save the comment meta data along with comment
 add_action( 'comment_post', 'save_comment_meta_data' );
 function save_comment_meta_data( $comment_id ) {
-	if ( ( isset( $_POST['bitcoin'] ) ) && ( $_POST['bitcoin'] != '') )
-	$bitcoin = wp_filter_nohtml_kses($_POST['bitcoin']);
-	add_comment_meta( $comment_id, 'bitcoin', $bitcoin );
+    if ( ( isset( $_POST['bitcoin'] ) ) && ( $_POST['bitcoin'] != '') ) {
+        $bitcoin = wp_filter_nohtml_kses($_POST['bitcoin']);
+
+        if(!BitcoinAddressValidation::checkAddress($bitcoin)) return false;
+
+        add_comment_meta( $comment_id, 'bitcoin', $bitcoin );
 
         // if $bitcoin is empty, continue
         // call out to bitcoind to determine if payment with $bitcoin has been made
         // call to blockchain.info to check if n_tx > 0, if so, approve with line below
         $url = 'https://blockchain.info/address/'.$bitcoin.'?format=json';
         $payload = file_get_contents($url);
-        /* echo '<!--$payload:'; */
-        /* var_dump($payload); */
-        /* echo '-->'; */
-
         $json = json_decode($payload);
-        /* echo '<!--$json:'; */
-        /* var_dump($json); */
-        /* echo '-->'; */
         if( $json->{ 'n_tx' } > 0)
             wp_set_comment_status( $comment_id, 'approve' );
-
+    }
 }
-
 
 // Update comment meta data from comment edit screen 
 add_action( 'edit_comment', 'extend_comment_edit_metafields' );
@@ -83,9 +75,7 @@ function extend_comment_edit_metafields( $comment_id ) {
 	else :
             delete_comment_meta( $comment_id, 'bitcoin');
 	endif;
-	
 }
-
 
 // Add the comment meta (saved earlier) to the comment text 
 // You can also output the comment meta values directly in comments template  
@@ -117,6 +107,7 @@ function bitcoin_init() {
         wp_enqueue_script('bitcoin-js-script');
     }
 }
+
 function bitcoin_ajax_request() {
 	// The $_REQUEST contains all the data sent via ajax
 	if ( isset($_REQUEST) ) {
@@ -133,6 +124,7 @@ function bitcoin_ajax_request() {
         // Always die in functions echoing ajax content
         die();
 }
+
 add_action( 'wp_ajax_bitcoin_ajax_request', 'bitcoin_ajax_request' );
 add_action( 'wp_ajax_nopriv_bitcoin_ajax_request', 'bitcoin_ajax_request' );
 
@@ -148,7 +140,6 @@ function cron_add_5min( $schedules ) {
     );
     return $schedules;
 }
-
 
 //On plugin activation schedule our daily database backup 
 register_activation_hook( __FILE__, 'bitcomments_sync_verifications_schedule' );
