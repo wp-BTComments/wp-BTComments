@@ -1,7 +1,7 @@
 <?php
 
 require_once dirname( __FILE__ ) . '/wordpress-settings-api-class/class.settings-api.php';
-require_once dirname( __FILE__ ) . '/class.BitcoinAddressValidation..php';
+require_once dirname( __FILE__ ) . '/class.BitcoinAddressValidation.php';
 
 if ( !class_exists('BitComments_Settings' ) ):
 class BitComments_Settings {

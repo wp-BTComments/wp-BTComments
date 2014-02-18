@@ -21,6 +21,7 @@ This plugin was written by Matt Snyder and Kenny Younger as part of the Madworks
 * Use the WP Settings API to store the blockchain web wallet GUID and password, negating the need to change those variables in the code.
 * Refactor the code — afterall, this was hacked together during a hackathon when time limits were in place. Giving DOM elements id's such as "bitcoin" is asking for collisions with other plugins' code.
 * Tab order is funky
+* Only include jquery and custom js on pages that have commenting
 * Display QR code for payment address
 * Probably rebrand this plugin.
 * OPTIONAL:
