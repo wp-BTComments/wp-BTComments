@@ -105,4 +105,14 @@ class BitComments_Settings {
 }
 endif;
 
+function settings_get_option( $option, $section, $default = '' ) {
+    $options = get_option( $section );
+ 
+    if ( isset( $options[$option] ) ) {
+        return $options[$option];
+    }
+ 
+    return $default;
+}
+
 $settings = new BitComments_Settings();

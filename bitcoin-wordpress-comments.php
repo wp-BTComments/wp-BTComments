@@ -93,7 +93,7 @@ add_filter( 'comment_text', 'modify_comment');
 function modify_comment( $text ){
     if( $commentbitcoin = get_comment_meta( get_comment_ID(), 'bitcoin', true ) ) {
         $commentbitcoin = '<p class="bitcoin-follow-button">'.$commentbitcoin.'</a>';
-        /* $text = $text.$commentbitcoin; */
+    /*     $text .= $commentbitcoin; */
         return $text;
     } 
     else {
@@ -122,7 +122,9 @@ function bitcoin_ajax_request() {
 	if ( isset($_REQUEST) ) {
 		// Now we'll return it to the javascript function
 		// Anything outputted will be returned in the response
-                $payload = file_get_contents('https://blockchain.info/merchant/'.$BLOCKCHAIN_GUID.'/new_address?password='.$BLOCKCHAIN_PASSWORD.'&label=wp-bitpost');
+                $BLOCKCHAIN_GUID = settings_get_option( 'blockchain_identifier', 'bitcomments_basics');
+                $BLOCKCHAIN_PASSWORD = settings_get_option( 'blockchain_password', 'bitcomments_basics');
+                $payload = file_get_contents('https://blockchain.info/merchant/'.$BLOCKCHAIN_GUID.'/new_address?password='.$BLOCKCHAIN_PASSWORD.'&label=wp-bitcomments');
                 header( "Content-Type: application/json" );
 		echo $payload;
 		// If you're debugging, it might be useful to see what was sent in the $_REQUEST
