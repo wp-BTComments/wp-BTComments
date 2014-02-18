@@ -26,7 +26,7 @@ class BitComments_Settings {
     }
 
     function admin_menu() {
-        add_options_page( 'BitComments Settings', 'BitComments Settings', 'delete_posts', 'bitcomments-settings', array($this, 'plugin_page') );
+        add_options_page( 'BitComments Settings', 'BitComments', 'delete_posts', 'bitcomments-settings', array($this, 'plugin_page') );
     }
 
     function get_settings_sections() {
@@ -49,7 +49,7 @@ class BitComments_Settings {
             'bitcomments_basics' => array(
                 array(
                     'name' => 'blockchain_identifier',
-                    'label' => __( 'Blockchain.info Identifier', 'bitcomments' ),
+                    'label' => __( 'Identifier', 'bitcomments' ),
                     'desc' => __( 'Blockchain.info Identifier (sometimes called a GUID)', 'bitcomments' ),
                     'type' => 'text',
                     'default' => ''
@@ -58,7 +58,7 @@ class BitComments_Settings {
                 ),
                 array(
                     'name' => 'blockchain_password',
-                    'label' => __( 'Blockchain.info Password', 'bitcomments' ),
+                    'label' => __( 'Password', 'bitcomments' ),
                     'desc' => __( 'Blockchain.info Password', 'bitcomments' ),
                     'type' => 'password',
                     'default' => ''
