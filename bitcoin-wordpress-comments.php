@@ -151,21 +151,21 @@ function cron_add_5min( $schedules ) {
 
 
 //On plugin activation schedule our daily database backup 
-register_activation_hook( __FILE__, 'bitcomment_sync_verifications_schedule' );
-function bitcomment_sync_verifications_schedule(){
+register_activation_hook( __FILE__, 'bitcomments_sync_verifications_schedule' );
+function bitcomments_sync_verifications_schedule(){
     //Use wp_next_scheduled to check if the event is already scheduled
-    $timestamp = wp_next_scheduled( 'bitcomment_create_sync_verifications' );
+    $timestamp = wp_next_scheduled( 'bitcomments_create_sync_verifications' );
 
     //If $timestamp == false schedule daily backups since it hasn't been done previously
     if( $timestamp == false ){
-        //Schedule the event for right now, then to repeat daily using the hook 'bitcomment_create_sync_verifications'
-        wp_schedule_event( time(), '5min', 'bitcomment_create_sync_verifications' );
+        //Schedule the event for right now, then to repeat daily using the hook 'bitcomments_create_sync_verifications'
+        wp_schedule_event( time(), '5min', 'bitcomments_create_sync_verifications' );
     }
 }
 
-//Hook our function , bitcomment_create_backup(), into the action bitcomment_create_sync_verifications
-add_action( 'bitcomment_create_sync_verifications', 'bitcomment_sync_verifications' );
-function bitcomment_sync_verifications(){
+//Hook our function , bitcomments_create_backup(), into the action bitcomments_create_sync_verifications
+add_action( 'bitcomments_create_sync_verifications', 'bitcomments_sync_verifications' );
+function bitcomments_sync_verifications(){
     //query the wp comment list, return all comments without null Bitcoin Address && aren't aren't approved
     //create array of all bitcoin addresses
     //check blockchain.info for each address
