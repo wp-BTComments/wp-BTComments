@@ -14,7 +14,7 @@ A good chunk of the comment form code we templated from
 http://wordpress.org/plugins/twitter-comment-field — props to Corey Freeman for
 such reusable code.
 
-This plugin was written by Matt Snyder and Kenny Younger as part of the [Madworks Cryptocurrency Hackathon](www.madworkscoworking.org/hackathon.html) on Feb 15th, 2014, and scored 1st place!
+This plugin was written by Matt Snyder and Kenny Younger as part of the [Madworks Cryptocurrency Hackathon](http://www.madworkscoworking.org/hackathon.html) on Feb 15th, 2014, and scored 1st place!
 
 #### TODO
 * Only show the "verify that you're human with bitcoin" option after the comment has been submitted AND the comment is waiting for moderation. There's no sense in showing this form to a logged-in user, or a commenter that has already been given approval for commenting without moderation. This would also aleviate the security issue of having to work out some way to validate the BTC address submitted with the form is the same one retrieved through the ajax call (that is run when you click the checkbox), because the commentid would be sent with the ajax call, and the unique bitcoin address created would be associated with that commentid on the server.
