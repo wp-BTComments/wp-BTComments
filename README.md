@@ -22,11 +22,11 @@ This plugin was written by Matt Snyder and Kenny Younger as part of the [Madwork
 * Display QR code for payment address
 * Tab order is funky
 * Only include jquery and custom js on pages that have commenting enabled/showing
-
-* OPTIONAL:
+* *OPTIONAL:*
 * Add ability to use LTC or other cryptocurrencies?
 * Perhaps make the plugin have an option to auto-refund the microtransaction?
 * Potentially have a button that a commenter can use to "force refresh" of the payment status (in case they paid after comment was submitted, but don't want to wait the 5 minutes for the WP-Cron system to sync up payments, or maybe WP-Cron isn't working for that partiular server, etc.).
+* Add ability for other wallets that provide appropriate api's (or self-hosted bitcoind interface).
 
 #### Issues
 1. We used blockchain.info's web wallet because they provide an API robust enough to allow a call to create a new receive payment adddress. This does cause the web wallet to become a bit unweildy for regular use. We recommend that you create a separate account (and therefore wallet) on blockchain.info to use solely with this plugin. That has the added benefit of not exposing your day-to-day bitcoin finances to hackers that compromise your wordpress installation. (If they do, the whole point of this is the BTC amounts are very small, so you would only lose a miniscule amount of BTC anyway. If it's a concern, or for some reason the amounts do grow to a material amount, regularly log into this account and transfer the funds somewhere else.)
