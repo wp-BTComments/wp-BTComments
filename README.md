@@ -1,4 +1,4 @@
-wordpress-bitpost
+wp-BTComments
 =================
 
 Prevent spam with Bitcoin micropayments!
@@ -19,10 +19,10 @@ This plugin was written by Matt Snyder and Kenny Younger as part of the [Madwork
 #### TODO
 * Only show the "verify that you're human with bitcoin" option after the comment has been submitted AND the comment is waiting for moderation. There's no sense in showing this form to a logged-in user, or a commenter that has already been given approval for commenting without moderation. This would also aleviate the security issue of having to work out some way to validate the BTC address submitted with the form is the same one retrieved through the ajax call (that is run when you click the checkbox), because the commentid would be sent with the ajax call, and the unique bitcoin address created would be associated with that commentid on the server.
 * Refactor the code — afterall, this was hacked together during a hackathon when time limits were in place. Giving DOM elements id's such as "bitcoin" is asking for collisions with other plugins' code.
+* Display QR code for payment address
 * Tab order is funky
 * Only include jquery and custom js on pages that have commenting enabled/showing
-* Display QR code for payment address
-* Probably rebrand this plugin.
+
 * OPTIONAL:
 * Add ability to use LTC or other cryptocurrencies?
 * Perhaps make the plugin have an option to auto-refund the microtransaction?
