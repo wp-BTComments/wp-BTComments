@@ -1,47 +1,13 @@
 <?php
 /*
-Plugin Name: wp-BitComments
+Plugin Name: wp-BTComments
 Version: 0.1
-Description: A plugin that verifies commenters as human by bitcoin microtransaction.
+Description: A plugin that verifies commenters as human through a bitcoin microtransaction.
 Author: Kenny Younger & Matt Snyder 
 License: GPL v2
 */
 
-add_filter('comment_form_default_fields','custom_fields');
-function custom_fields($fields) {
-    $commenter = wp_get_current_commenter();
-    $req = get_option( 'require_name_email' );
-    $aria_req = ( $req ? " aria-required='true'" : '' );
 
-    $fields[ 'author' ] = '<p class="comment-form-author">'.
-        '<label for="author">' . __( 'Name' ) . '</label>'.
-        ( $req ? '<span class="required">*</span>' : '' ).
-        '<input id="author" name="author" type="text" value="'. esc_attr( $commenter['comment_author'] ) . 
-        '" size="30" tabindex="1"' . $aria_req . ' /></p>';
-    
-    $fields[ 'email' ] = '<p class="comment-form-email">'.
-        '<label for="email">' . __( 'Email' ) . '</label>'.
-        ( $req ? '<span class="required">*</span>' : '' ).
-        '<input id="email" name="email" type="text" value="'. esc_attr( $commenter['comment_author_email'] ) . 
-        '" size="30"  tabindex="2"' . $aria_req . ' /></p>';
-                            
-    $fields[ 'url' ] = '<p class="comment-form-url">'.
-        '<label for="url">' . __( 'Website' ) . '</label>'.
-        '<input id="url" name="url" type="text" value="'. esc_attr( $commenter['comment_author_url'] ) . 
-        '" size="30"  tabindex="3" /></p>';
-
-    return $fields;
-}
-
-// Add fields after default fields above the comment box, always visible
-add_action( 'comment_form_after_fields', 'additional_fields' );
-add_action( 'comment_form_logged_in_after', 'additional_fields' );
-function additional_fields () {
-    echo '<p class="comment-form-bitcoin">'.
-    '<label for="bitcoin">' . __( 'Pay to Bitcoin Address: &nbsp;' ) . '</label>'.
-    '<input id="bitcoin" readonly="readonly" name="bitcoin" type="text" size="60"  tabindex="5" />'.
-    '<br><span> (May take up to 5 minutes to very transaction.)</span></p>';
-}
 
 // Save the comment meta data along with comment
 add_action( 'comment_post', 'save_comment_meta_data' );
@@ -81,14 +47,25 @@ function extend_comment_edit_metafields( $comment_id ) {
 // You can also output the comment meta values directly in comments template  
 add_filter( 'comment_text', 'modify_comment');
 function modify_comment( $text ){
-    if( $commentbitcoin = get_comment_meta( get_comment_ID(), 'bitcoin', true ) ) {
-        $commentbitcoin = '<p class="bitcoin-follow-button">'.$commentbitcoin.'</a>';
-    /*     $text .= $commentbitcoin; */
+    $comment_id = get_comment_ID();
+    $comment = get_comment($comment_id);
+
+    if ( '0' == $comment->comment_approved ) :
+        if( $commentbitcoin = get_comment_meta( get_comment_ID(), 'bitcoin', true ) ) {
+            // if this bitcoin address already exists, then use this instead of 
+            // showing button to generate new address
+        }
+
+        $jquery_insert = '<p>INSERT BUTTON THAT RUNS JQUERY using commentid: '.$comment_id.'</p>';
+        $checkbox_code = '<p class="comment-form-bitcoin">'.
+                         '<label for="bitcoin">' . __( 'Pay to Bitcoin Address: &nbsp;' ) . '</label>'.
+                         '<input id="bitcoin" readonly="readonly" name="bitcoin" type="text" size="60" tabindex="5" data-commentid="'.$comment_id.'" />'.
+                         '<br><span> (May take up to 5 minutes to verify transaction.)</span></p>';
+        $javascript = '<script>bitcoinid='.$comment_id.'</script>';
+        $text .= $jquery_insert.$checkbox_code;
         return $text;
-    } 
-    else {
-        return $text;		
-    }	 
+    endif; 
+
 }
 
 
@@ -111,15 +88,48 @@ function bitcoin_init() {
 function bitcoin_ajax_request() {
 	// The $_REQUEST contains all the data sent via ajax
 	if ( isset($_REQUEST) ) {
-		// Now we'll return it to the javascript function
-		// Anything outputted will be returned in the response
-                $BLOCKCHAIN_GUID = settings_get_option( 'blockchain_identifier', 'bitcomments_basics');
-                $BLOCKCHAIN_PASSWORD = settings_get_option( 'blockchain_password', 'bitcomments_basics');
-                $payload = file_get_contents('https://blockchain.info/merchant/'.$BLOCKCHAIN_GUID.'/new_address?password='.$BLOCKCHAIN_PASSWORD.'&label=wp-bitcomments');
-                header( "Content-Type: application/json" );
-		echo $payload;
-		// If you're debugging, it might be useful to see what was sent in the $_REQUEST
-		/* print_r($_REQUEST); */
+            $payload = '';
+
+            // check that $_REQUEST('commentid') is set, if not set, return nothing.
+            if ( !isset($_REQUEST['commentid']) ) { $payload .= 'test1'; }
+
+            $commentid = $_REQUEST['commentid'];
+            $comment = get_comment($commentid); // does this return an exception if 
+
+            // check that commentid is valid commentid, if not, return nothing.
+            if ( !isset($comment) ) { $payload .= 'test2'; }
+
+            // check that '0' == $comment->comment_approved, if not return nothing
+            if ( '0' != $comment->comment_approved ) { $payload .= 'test3'; }
+
+            $commentbitcoin = get_comment_meta( $commentid, 'bitcoin', true );
+            /* $payload = var_dump($commentbitcoin); */
+
+            if( $payload == '') {
+                if ( $commentbitcoin != '') {
+                    // commentid is already assoc with bitcoin address, so return that bitcoin address
+                    $payload = '{"address":"'.$commentbitcoin.'","label":"wp-bitcomments","test":"exists"}';
+                }
+                else {
+                    // get new address from blockchain
+                    // Now we'll return it to the javascript function // Anything outputted will be returned in the response
+                    $BLOCKCHAIN_GUID = settings_get_option( 'blockchain_identifier', 'bitcomments_basics');
+                    $BLOCKCHAIN_PASSWORD = settings_get_option( 'blockchain_password', 'bitcomments_basics');
+                    $payload = file_get_contents('https://blockchain.info/merchant/'.$BLOCKCHAIN_GUID.'/new_address?password='.$BLOCKCHAIN_PASSWORD.'&label=wp-bitcomments');
+                    $json = json_decode( $payload );
+                    $commentbitcoin = $json->{'address'}; 
+                    $payload = '{"address":"'.$commentbitcoin.'","label":"wp-bitcomments","commentid":"'.$commentid.'"}';
+
+                    if( !add_comment_meta( $commentid, 'bitcoin', $commentbitcoin, false ) ) {
+                        $payload .= 'broken';
+                    }
+                }
+            }
+            header( "Content-Type: application/json" );
+            echo $payload;
+            // If you're debugging, it might be useful to see what was sent in the $_REQUEST
+            /* print_r($_REQUEST); */
+
 	}
         // Always die in functions echoing ajax content
         die();
